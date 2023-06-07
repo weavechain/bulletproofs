@@ -9,6 +9,7 @@ plugins {
     `maven-publish`
     id("org.jetbrains.dokka") version "1.8.20"
     id("com.github.jk1.dependency-license-report") version "2.4"
+    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     signing
 
     id("java-library")
@@ -34,10 +35,10 @@ dependencies {
 
     implementation("cafe.cryptography:curve25519-elisabeth:0.1.2")
     implementation("com.github.aelstad:keccakj:1.1.0")
-    implementation("org.bitcoinj:bitcoinj-core:0.16.2")
+    implementation("org.bitcoinj:bitcoinj-core:0.17-alpha1")
     implementation("org.msgpack:msgpack-core:0.8.24")
     implementation("io.airlift:aircompressor:0.21")
-    implementation("com.github.ben-manes:caffeine:3.1.2") {
+    implementation("com.github.ben-manes:caffeine:3.1.6") {
         exclude("com.github.ben-manes.caffeine", "simulator")
     }
 

@@ -3,7 +3,7 @@ package com.weavechain.zk.bulletproofs;
 import cafe.cryptography.curve25519.RistrettoElement;
 import cafe.cryptography.curve25519.Scalar;
 import com.google.gson.*;
-import org.bitcoinj.core.Base58;
+import org.bitcoinj.base.Base58;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;

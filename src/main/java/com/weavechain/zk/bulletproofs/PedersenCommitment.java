@@ -5,7 +5,7 @@ import cafe.cryptography.curve25519.RistrettoElement;
 import cafe.cryptography.curve25519.Scalar;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.bitcoinj.core.Base58;
+import org.bitcoinj.base.Base58;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
