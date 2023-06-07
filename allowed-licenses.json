@@ -1,0 +1,39 @@
+{
+  "allowedLicenses": [
+    {"moduleLicense": "MIT License"},
+    {"moduleLicense": "Bouncy Castle Licence"},
+    {"moduleLicense": "Apache License, Version 2.0"},
+    {"moduleLicense": "Apache Software License, Version 1.1"},
+    {"moduleLicense": "The 3-Clause BSD License"},
+    {
+        "moduleLicense": null, /* MIT License */
+        "moduleVersion": ".*",
+        "moduleName": "cafe.cryptography:curve25519-elisabeth"
+    },
+    {
+        "moduleLicense": null, /*  Apache-2.0 license  */
+        "moduleVersion": ".*",
+        "moduleName": "com.github.ben-manes:caffeine"
+    },
+    {
+        "moduleLicense": null, /* Apache-2.0 license */
+        "moduleVersion": "1.0",
+        "moduleName": "net.jcip:jcip-annotations"
+    },
+    {
+        "moduleLicense": null,  /*  Apache-2.0 license  */
+        "moduleVersion": "1.7.21",
+        "moduleName": "org.jetbrains.kotlin:kotlin-bom"
+    },
+    {
+        "moduleLicense": null, /* EPL 2.0 */
+        "moduleVersion": "5.9.1",
+        "moduleName": "org.junit:junit-bom"
+    },
+    {
+        "moduleLicense": null, /* BSD 3-clause */
+        "moduleVersion": "9.4",
+        "moduleName": "org.ow2.asm:asm-bom"
+    }
+  ]
+}
