@@ -8,6 +8,8 @@ Bulletproofs are short non-interactive zero-knowledge proofs that require no tru
 
 Based on the [Rust Bulletproofs implementation](https://github.com/dalek-cryptography/bulletproofs) from dalek-cryptography
 
+See also the [Bulletproofs Gadgets](https://github.com/weavechain/bulletproofs-gadgets) library
+
 
 ### Usage
 
@@ -136,7 +138,7 @@ implementation("com.weavechain:bulletproofs:1.0")
 
 #### Apache Maven
 
-```
+```xml
 <dependency>
   <groupId>com.weavechain</groupId>
   <artifactId>bulletproofs</artifactId>
