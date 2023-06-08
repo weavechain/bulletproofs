@@ -42,6 +42,7 @@ dependencies {
         exclude("com.github.ben-manes.caffeine", "simulator")
     }
 
+    implementation("com.google.guava:guava:32.0.0-jre")
     implementation("commons-codec:commons-codec:1.15")
     implementation("com.google.code.gson:gson:2.8.9")
 
@@ -148,7 +149,7 @@ tasks.withType<PublishToMavenRepository> {
 licenseReport {
     filters = arrayOf<DependencyFilter>(
             LicenseBundleNormalizer(
-                    "$rootDir/license-normalizer-bundle.json",
+                    "$rootDir/normalizer-bundle.json",
                     true
             )
     )
