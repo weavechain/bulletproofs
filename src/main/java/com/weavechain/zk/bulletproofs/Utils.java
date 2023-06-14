@@ -1,7 +1,7 @@
 package com.weavechain.zk.bulletproofs;
 
-import cafe.cryptography.curve25519.RistrettoElement;
-import cafe.cryptography.curve25519.Scalar;
+import com.weavechain.curve25519.RistrettoElement;
+import com.weavechain.curve25519.Scalar;
 import com.google.gson.*;
 import org.bitcoinj.base.Base58;
 

@@ -1,6 +1,6 @@
 package com.weavechain.zk.bulletproofs;
 
-import cafe.cryptography.curve25519.CompressedRistretto;
+import com.weavechain.curve25519.CompressedRistretto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.msgpack.core.MessageBufferPacker;

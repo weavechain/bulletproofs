@@ -1,19 +1,49 @@
-## Bulletproofs Java Implementation
+## Bulletproofs
+
+A pure Java implementation of Bulletproofs using Ristretto.
 
 Bulletproofs are short non-interactive zero-knowledge proofs that require no trusted setup. 
 
-[Read More about Bulletproofs](https://crypto.stanford.edu/bulletproofs/)
-
-[Paper](https://eprint.iacr.org/2017/1066.pdf)
-
 Based on the [Rust Bulletproofs implementation](https://github.com/dalek-cryptography/bulletproofs) from dalek-cryptography
 
-See also the [Bulletproofs Gadgets](https://github.com/weavechain/bulletproofs-gadgets) library
+[Read More about Bulletproofs](https://crypto.stanford.edu/bulletproofs/)
 
+[Paper](https://eprint.iacr.org/2017/1066.pdf) 
+(B. Bünz, J. Bootle, D. Boneh, A. Poelstra, P. Wuille, and G. Maxwell.
+Bulletproofs: Short proofs for confidential transactions and more. 2018
+IEEE Symposium on Security and Privacy (SP), pages 315–334, May 2018)
+
+See also the Java [Bulletproofs Gadgets](https://github.com/weavechain/bulletproofs-gadgets) library
+
+
+### Gradle Groovy DSL
+```
+implementation 'com.weavechain:bulletproofs:1.0.1'
+```
+
+### Gradle Kotlin DSL
+
+```
+implementation("com.weavechain:bulletproofs:1.0.1")
+```
+
+#### Apache Maven
+
+```xml
+<dependency>
+  <groupId>com.weavechain</groupId>
+  <artifactId>bulletproofs</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
+
+### Warning
+
+This bulletproofs library has been partially audited and is provided as-is, we make no guarantees or warranties to its safety, security and reliability.
 
 ### Usage
 
-Sample range proof
+Sample Range Proof
 
 ```java
 private static Proof generateRangeProof(long value, long min, long max, int bitsize, Scalar rnd, PedersenCommitment pedersenCommitment, BulletProofGenerators generators) {
@@ -123,27 +153,6 @@ public static void main(String[] args) throws NoSuchAlgorithmException, IOExcept
     boolean match = verifyRangeProof(min, max, bitsize, proof2, pc, bg2);
     System.out.println(match ? "Success" : "Fail");
 }
-```
-
-### Gradle Groovy DSL
-```
-implementation 'com.weavechain:bulletproofs:1.0'
-```
-
-### Gradle Kotlin DSL
-
-```
-implementation("com.weavechain:bulletproofs:1.0")
-```
-
-#### Apache Maven
-
-```xml
-<dependency>
-  <groupId>com.weavechain</groupId>
-  <artifactId>bulletproofs</artifactId>
-  <version>1.0</version>
-</dependency>
 ```
 
 #### Weavechain

@@ -1,8 +1,8 @@
 package com.weavechain.zk.bulletproofs;
 
-import cafe.cryptography.curve25519.CompressedRistretto;
-import cafe.cryptography.curve25519.RistrettoElement;
-import cafe.cryptography.curve25519.Scalar;
+import com.weavechain.curve25519.CompressedRistretto;
+import com.weavechain.curve25519.RistrettoElement;
+import com.weavechain.curve25519.Scalar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

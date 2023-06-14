@@ -1,6 +1,6 @@
 package com.weavechain.zk.bulletproofs;
 
-import cafe.cryptography.curve25519.RistrettoElement;
+import com.weavechain.curve25519.RistrettoElement;
 import com.github.aelstad.keccakj.fips202.Shake256;
 import lombok.Getter;
 
