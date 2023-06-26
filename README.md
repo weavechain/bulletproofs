@@ -43,7 +43,7 @@ This bulletproofs library has been partially audited and is provided as-is, we m
 
 ### Usage
 
-Sample Range Proof
+Sample Range Proof (partially based on a [Rust implementation](https://github.com/lovesh/bulletproofs-r1cs-gadgets))
 
 ```java
 private static Proof generateRangeProof(long value, long min, long max, int bitsize, Scalar rnd, PedersenCommitment pedersenCommitment, BulletProofGenerators generators) {
