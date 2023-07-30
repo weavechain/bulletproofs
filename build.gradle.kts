@@ -81,7 +81,7 @@ publishing {
         create<MavenPublication>("Maven") {
             groupId = "com.weavechain"
             artifactId = "bulletproofs"
-            version = "1.0.1"
+            version = "1.0.2"
             from(components["java"])
         }
         withType<MavenPublication> {

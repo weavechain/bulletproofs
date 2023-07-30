@@ -18,13 +18,13 @@ See also the Java [Bulletproofs Gadgets](https://github.com/weavechain/bulletpro
 
 ### Gradle Groovy DSL
 ```
-implementation 'com.weavechain:bulletproofs:1.0.1'
+implementation 'com.weavechain:bulletproofs:1.0.2'
 ```
 
 ### Gradle Kotlin DSL
 
 ```
-implementation("com.weavechain:bulletproofs:1.0.1")
+implementation("com.weavechain:bulletproofs:1.0.2")
 ```
 
 #### Apache Maven
@@ -33,7 +33,7 @@ implementation("com.weavechain:bulletproofs:1.0.1")
 <dependency>
   <groupId>com.weavechain</groupId>
   <artifactId>bulletproofs</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
