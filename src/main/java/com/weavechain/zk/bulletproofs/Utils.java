@@ -1,5 +1,6 @@
 package com.weavechain.zk.bulletproofs;
 
+import com.weavechain.curve25519.MulUtils;
 import com.weavechain.curve25519.RistrettoElement;
 import com.weavechain.curve25519.Scalar;
 import com.google.gson.*;
@@ -75,25 +76,11 @@ public class Utils {
     }
 
     public static RistrettoElement multiscalarMul(Scalar s1, List<Scalar> s2, List<Scalar> s3, RistrettoElement p1, List<RistrettoElement> p2, List<RistrettoElement> p3) {
-        RistrettoElement res = p1.multiply(s1);
-
-        if (s2 != null && p2 != null && s2.size() == p2.size()) {
-            for (int i = 0; i < s2.size(); i++) {
-                res = res.add(p2.get(i).multiply(s2.get(i)));
-            }
-        }
-
-        if (s3 != null && p3 != null && s3.size() == p3.size()) {
-            for (int i = 0; i < s3.size(); i++) {
-                res = res.add(p3.get(i).multiply(s3.get(i)));
-            }
-        }
-
-        return res;
+        return MulUtils.multiscalarMulStraus(s1, s2, s3, p1, p2, p3);
     }
 
     public static RistrettoElement multiscalarMul(Scalar s1, List<Scalar> s2, RistrettoElement p1, List<RistrettoElement> p2) {
-        return multiscalarMul(s1, s2, null, p1, p2, null);
+        return MulUtils.multiscalarMulStraus(s1, s2, null, p1, p2, null);
     }
 
     public static RistrettoElement multiscalarMul(Scalar s1, Scalar s2, RistrettoElement p1, RistrettoElement p2) {

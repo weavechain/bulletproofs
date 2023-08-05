@@ -33,7 +33,7 @@ dependencies {
 
     implementation("org.slf4j:slf4j-api:2.0.0")
 
-    implementation("com.weavechain:curve25519-elisabeth:0.1.3")
+    implementation("com.weavechain:curve25519-elisabeth:0.1.4")
     implementation("com.github.aelstad:keccakj:1.1.0")
     implementation("org.bitcoinj:bitcoinj-core:0.17-alpha1")
     implementation("org.msgpack:msgpack-core:0.8.24")
@@ -81,7 +81,7 @@ publishing {
         create<MavenPublication>("Maven") {
             groupId = "com.weavechain"
             artifactId = "bulletproofs"
-            version = "1.0.2"
+            version = "1.0.4"
             from(components["java"])
         }
         withType<MavenPublication> {
