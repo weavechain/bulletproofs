@@ -76,15 +76,15 @@ public class Utils {
     }
 
     public static RistrettoElement multiscalarMul(Scalar s1, List<Scalar> s2, List<Scalar> s3, RistrettoElement p1, List<RistrettoElement> p2, List<RistrettoElement> p3) {
-        return MulUtils.multiscalarMulStraus(s1, s2, s3, p1, p2, p3);
+        return MulUtils.multiscalarMulOpt(s1, s2, s3, p1, p2, p3);
     }
 
     public static RistrettoElement multiscalarMul(Scalar s1, List<Scalar> s2, RistrettoElement p1, List<RistrettoElement> p2) {
-        return MulUtils.multiscalarMulStraus(s1, s2, null, p1, p2, null);
+        return MulUtils.multiscalarMulOpt(s1, s2, null, p1, p2, null);
     }
 
     public static RistrettoElement multiscalarMul(Scalar s1, Scalar s2, RistrettoElement p1, RistrettoElement p2) {
-        return p1.multiply(s1).add(p2.multiply(s2));
+        return MulUtils.mulStraus(s1, s2, p1, p2);
     }
 
     public static Scalar innerProduct(List<Scalar> a, List<Scalar> b) {
