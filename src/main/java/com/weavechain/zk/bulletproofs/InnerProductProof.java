@@ -1,6 +1,7 @@
 package com.weavechain.zk.bulletproofs;
 
 import com.weavechain.curve25519.CompressedRistretto;
+import com.weavechain.curve25519.MulUtils;
 import com.weavechain.curve25519.RistrettoElement;
 import com.weavechain.curve25519.Scalar;
 import lombok.AllArgsConstructor;
@@ -157,8 +158,8 @@ public class InnerProductProof {
             for (int i = 0; i < n; i++) {
                 a_L.set(i, a_L.get(i).multiply(u).add(u_inv.multiply(a_R.get(i))));
                 b_L.set(i, b_L.get(i).multiply(u_inv).add(u.multiply(b_R.get(i))));
-                G_L.set(i, Utils.multiscalarMul(u_inv.multiply(G_fact.get(i)), u.multiply(G_fact.get(n + i)), G_L.get(i), G_R.get(i)));
-                H_L.set(i, Utils.multiscalarMul(u.multiply(H_fact.get(i)), u_inv.multiply(H_fact.get(n + i)), H_L.get(i), H_R.get(i)));
+                G_L.set(i, MulUtils.mulStraus(u_inv.multiply(G_fact.get(i)), u.multiply(G_fact.get(n + i)), G_L.get(i), G_R.get(i)));
+                H_L.set(i, MulUtils.mulStraus(u.multiply(H_fact.get(i)), u_inv.multiply(H_fact.get(n + i)), H_L.get(i), H_R.get(i)));
             }
 
             a = a_L;
@@ -197,8 +198,8 @@ public class InnerProductProof {
             for (int i = 0; i < n; i++) {
                 a_L.set(i, a_L.get(i).multiply(u).add(u_inv.multiply(a_R.get(i))));
                 b_L.set(i, b_L.get(i).multiply(u_inv).add(u.multiply(b_R.get(i))));
-                G_L.set(i, Utils.multiscalarMul(u_inv, u, G_L.get(i), G_R.get(i)));
-                H_L.set(i, Utils.multiscalarMul(u, u_inv, H_L.get(i), H_R.get(i)));
+                G_L.set(i, MulUtils.mulStraus(u_inv, u, G_L.get(i), G_R.get(i)));
+                H_L.set(i, MulUtils.mulStraus(u, u_inv, H_L.get(i), H_R.get(i)));
             }
 
             a = a_L;

@@ -4,6 +4,8 @@ public enum VariableType {
 
     one,
 
+    one_minus,
+
     committed,
 
     multiplier_left,

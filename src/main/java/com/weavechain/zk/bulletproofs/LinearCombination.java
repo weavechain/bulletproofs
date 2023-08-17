@@ -4,6 +4,7 @@ import com.weavechain.curve25519.Scalar;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,10 +13,24 @@ import java.util.List;
 @AllArgsConstructor
 public class LinearCombination {
 
+    public static final LinearCombination ONE = LinearCombination.from(Scalar.ONE);
+
     private final List<Term> terms = new ArrayList<>();
 
     public static LinearCombination from(Variable v) {
         return LinearCombination.from(new Term(v, Scalar.ONE));
+    }
+
+    public static LinearCombination from(BigInteger v) {
+        return from(v, false);
+    }
+
+    public static LinearCombination from(BigInteger v, boolean invert) {
+        Scalar s = Utils.scalarFromBigInteger(v.abs());
+        if (invert) {
+            s = s.invert();
+        }
+        return v.signum() >= 0 ? LinearCombination.from(new Term(Variable.ONE, s)) : LinearCombination.from(new Term(Variable.ONE_MINUS, s));
     }
 
     public static LinearCombination from(Scalar s) {

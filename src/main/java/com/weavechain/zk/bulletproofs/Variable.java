@@ -9,6 +9,8 @@ public class Variable {
 
     public static final Variable ONE = new Variable(VariableType.one, 1);
 
+    public static final Variable ONE_MINUS = new Variable(VariableType.one_minus, -1);
+
     private final VariableType type;
 
     private final long value;

@@ -94,6 +94,8 @@ public class Verifier extends ConstraintSystem {
                     wV.set(t.getVariable().getIndex(), wV.get(t.getVariable().getIndex()).subtract(expz.multiply(t.getScalar())));
                 } else if (VariableType.one.equals(t.getVariable().getType())) {
                     wc = wc.subtract(expz.multiply(t.getScalar()));
+                } else if (VariableType.one_minus.equals(t.getVariable().getType())) {
+                    wc = wc.add(expz.multiply(t.getScalar()));
                 }
             }
 

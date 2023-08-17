@@ -358,6 +358,8 @@ public class Prover extends ConstraintSystem {
                 result = result.add(t.getScalar().multiply(values.get(t.getVariable().getIndex())));
             } else if (VariableType.one.equals(t.getVariable().getType())) {
                 result = result.add(t.getScalar());
+            } else if (VariableType.one_minus.equals(t.getVariable().getType())) {
+                result = result.subtract(t.getScalar());
             }
         }
 
