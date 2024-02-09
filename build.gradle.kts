@@ -2,7 +2,7 @@ import com.github.jk1.license.filter.DependencyFilter
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 
 group = "com.weavechain"
-version = "1.0.6"
+version = "1.0.7"
 
 plugins {
     java
@@ -81,7 +81,7 @@ publishing {
         create<MavenPublication>("Maven") {
             groupId = "com.weavechain"
             artifactId = "bulletproofs"
-            version = "1.0.6"
+            version = "1.0.7"
             from(components["java"])
         }
         withType<MavenPublication> {
