@@ -92,7 +92,7 @@ public class InnerProductProof {
         }
 
         List<Scalar> s = new ArrayList<>();
-        s.add(allInv);
+        s.add(allInv != null ? allInv : Scalar.ONE);
         for (int i = 1; i < n; i++) {
             int logI = (32 - 1 - Integer.numberOfLeadingZeros(i));
             int k = 1 << logI;

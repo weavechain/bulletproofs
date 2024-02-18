@@ -78,7 +78,7 @@ public class BulletProofs {
         if (gadget != null) {
             return gadget.generate(value, gadgetParams, rnd, pedersenCommitment, generators);
         } else {
-            logger.error("Unknown gadget type " + gadgetType);
+            logger.error("Unknown gadget type " + (gadgetType != null ? gadgetType.name() : null));
             return null;
         }
     }
@@ -107,7 +107,7 @@ public class BulletProofs {
                 return false;
             }
         } else {
-            logger.error("Unknown gadget type " + gadgetType);
+            logger.error("Unknown gadget type " + (gadgetType != null ? gadgetType.name() : null));
             return false;
         }
     }
