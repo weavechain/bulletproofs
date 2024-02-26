@@ -1,6 +1,6 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.Scalar;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class Poly {
     public Scalar at(Scalar x) {
         Scalar res = coefficients.get(0);
 
-        Scalar cp = Scalar.ONE;
+        Scalar cp = BulletProofs.getFactory().one();
         for (int i = 1; i < coefficients.size(); i++) {
             cp = cp.multiply(x);
             res = coefficients.get(i).multiplyAndAdd(cp, res);

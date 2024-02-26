@@ -1,6 +1,10 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.Curve25519Factory;
+import com.weavechain.ec.ECPointFactory;
+import com.weavechain.ec.Scalar;
+import lombok.Getter;
+import lombok.Setter;
 import org.bitcoinj.base.Base58;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +24,10 @@ public class BulletProofs {
     public static final int DEFAULT_GENERATORS_SIZE = 256;
 
     public final Map<String, Gadget> gadgets = new HashMap<>();
+
+    @Getter
+    @Setter
+    public static ECPointFactory factory = new Curve25519Factory();
 
     public BulletProofs() {
     }

@@ -1,7 +1,7 @@
 
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.RistrettoElement;
+import com.weavechain.ec.ECPoint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,13 +15,13 @@ public class BulletProofGenShare {
 
     private int share;
 
-    public List<RistrettoElement> getG(int size) {
-        List<RistrettoElement> result = generators.getG().get(share);
+    public List<ECPoint> getG(int size) {
+        List<ECPoint> result = generators.getG().get(share);
         return result.size() > size ? result.subList(0, size) : result;
     }
 
-    public List<RistrettoElement> getH(int size) {
-        List<RistrettoElement> result = generators.getH().get(share);
+    public List<ECPoint> getH(int size) {
+        List<ECPoint> result = generators.getH().get(share);
         return result.size() > size ? result.subList(0, size) : result;
     }
 }

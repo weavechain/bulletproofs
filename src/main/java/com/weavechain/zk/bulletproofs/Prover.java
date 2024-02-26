@@ -1,8 +1,7 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.CompressedRistretto;
-import com.weavechain.curve25519.RistrettoElement;
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.ECPoint;
+import com.weavechain.ec.Scalar;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-@AllArgsConstructor
 public class Prover extends ConstraintSystem {
 
     static final Logger logger = LoggerFactory.getLogger(Prover.class);
@@ -36,8 +34,6 @@ public class Prover extends ConstraintSystem {
 
     private final List<Consumer<Prover>> deferredConstraints = new ArrayList<>();
 
-    private Integer pendingMultiplier = null;
-
     public Prover(Transcript transcript, PedersenCommitment pedersenCommitment) {
         this.transcript = transcript;
         this.pedersenCommitment = pedersenCommitment;
@@ -49,7 +45,7 @@ public class Prover extends ConstraintSystem {
         values.add(value);
         blindings.add(blinding);
 
-        CompressedRistretto commitment = pedersenCommitment.commit(value, blinding);
+        ECPoint commitment = pedersenCommitment.commit(value, blinding);
         transcript.append("V", commitment);
 
         return new Commitment(commitment, new Variable(VariableType.committed, BigInteger.valueOf(size)));
@@ -78,8 +74,6 @@ public class Prover extends ConstraintSystem {
     }
 
     private void randomizedConstraints() {
-        pendingMultiplier = null;
-
         if (deferredConstraints.isEmpty()) {
             transcript.phase1();
         } else {
@@ -95,10 +89,10 @@ public class Prover extends ConstraintSystem {
         int n = leftGates.size();
         int m = values.size();
 
-        List<Scalar> wL = new ArrayList<>(Collections.nCopies(n, Scalar.ZERO));
-        List<Scalar> wR = new ArrayList<>(Collections.nCopies(n, Scalar.ZERO));
-        List<Scalar> wO = new ArrayList<>(Collections.nCopies(n, Scalar.ZERO));
-        List<Scalar> wV = new ArrayList<>(Collections.nCopies(m, Scalar.ZERO));
+        List<Scalar> wL = new ArrayList<>(Collections.nCopies(n, BulletProofs.getFactory().zero()));
+        List<Scalar> wR = new ArrayList<>(Collections.nCopies(n, BulletProofs.getFactory().zero()));
+        List<Scalar> wO = new ArrayList<>(Collections.nCopies(n, BulletProofs.getFactory().zero()));
+        List<Scalar> wV = new ArrayList<>(Collections.nCopies(m, BulletProofs.getFactory().zero()));
 
         Scalar expz = z;
         for (LinearCombination lc : constraints) {
@@ -151,15 +145,15 @@ public class Prover extends ConstraintSystem {
         }
 
         // A_I = <a_L, G> + <a_R, H> + i_blinding * B_blinding
-        CompressedRistretto A_I1 = Utils.multiscalarMul(i_blinding1, leftGates, rightGates, pedersenCommitment.getBlinding(), gen.getG(n1), gen.getH(n1)).compress();
+        ECPoint A_I1 = Utils.multiscalarMul(i_blinding1, leftGates, rightGates, pedersenCommitment.getBlinding(), gen.getG(n1), gen.getH(n1)).compress();
         transcript.append("A_I1", A_I1);
 
         // A_O = <a_O, G> + o_blinding * B_blinding
-        CompressedRistretto A_O1 = Utils.multiscalarMul(o_blinding1, outputGates, pedersenCommitment.getBlinding(), gen.getG(n1)).compress();
+        ECPoint A_O1 = Utils.multiscalarMul(o_blinding1, outputGates, pedersenCommitment.getBlinding(), gen.getG(n1)).compress();
         transcript.append("A_O1", A_O1);
 
         // S = <s_L, G> + <s_R, H> + s_blinding * B_blinding
-        CompressedRistretto S1 = Utils.multiscalarMul(s_blinding1, s_L1, s_R1, pedersenCommitment.getBlinding(), gen.getG(n1), gen.getH(n1)).compress();
+        ECPoint S1 = Utils.multiscalarMul(s_blinding1, s_L1, s_R1, pedersenCommitment.getBlinding(), gen.getG(n1), gen.getH(n1)).compress();
         transcript.append("S1", S1);
 
         // Process the remaining constraints.
@@ -176,9 +170,9 @@ public class Prover extends ConstraintSystem {
         }
 
         boolean has2ndPhase = n2 > 0;
-        Scalar i_blinding2 = has2ndPhase ? Utils.randomScalar() : Scalar.ZERO;
-        Scalar o_blinding2 = has2ndPhase ? Utils.randomScalar() : Scalar.ZERO;
-        Scalar s_blinding2 = has2ndPhase ? Utils.randomScalar() : Scalar.ZERO;
+        Scalar i_blinding2 = has2ndPhase ? Utils.randomScalar() : BulletProofs.getFactory().zero();
+        Scalar o_blinding2 = has2ndPhase ? Utils.randomScalar() : BulletProofs.getFactory().zero();
+        Scalar s_blinding2 = has2ndPhase ? Utils.randomScalar() : BulletProofs.getFactory().zero();
 
         List<Scalar> s_L2 = new ArrayList<>();
         List<Scalar> s_R2 = new ArrayList<>();
@@ -188,19 +182,19 @@ public class Prover extends ConstraintSystem {
         }
 
         // A_I = <a_L, G> + <a_R, H> + i_blinding * B_blinding
-        CompressedRistretto A_I2 = has2ndPhase
+        ECPoint A_I2 = has2ndPhase
                 ? Utils.multiscalarMul(i_blinding2, leftGates.subList(n1, leftGates.size()), rightGates.subList(n1, rightGates.size()), pedersenCommitment.getBlinding(), gen.getG(n).subList(n1, gen.getG(n).size()), gen.getH(n).subList(n1, gen.getH(n).size())).compress()
-                : RistrettoElement.IDENTITY.compress();
+                : BulletProofs.getFactory().identity().compress();
         transcript.append("A_I2", A_I2);
 
         // A_O = <a_O, G> + o_blinding * B_blinding
-        CompressedRistretto A_O2 = has2ndPhase
+        ECPoint A_O2 = has2ndPhase
                 ? Utils.multiscalarMul(o_blinding2, outputGates.subList(n1, outputGates.size()), pedersenCommitment.getBlinding(), gen.getG(n).subList(n1, gen.getG(n).size())).compress()
-                : RistrettoElement.IDENTITY.compress();
+                : BulletProofs.getFactory().identity().compress();
         transcript.append("A_O2", A_O2);
 
         // S = <s_L, G> + <s_R, H> + s_blinding * B_blinding
-        CompressedRistretto S2 = Utils.multiscalarMul(s_blinding2, s_L2, s_R2, pedersenCommitment.getBlinding(), gen.getG(n).subList(n1, gen.getG(n).size()), gen.getH(n).subList(n1, gen.getH(n).size())).compress();
+        ECPoint S2 = Utils.multiscalarMul(s_blinding2, s_L2, s_R2, pedersenCommitment.getBlinding(), gen.getG(n).subList(n1, gen.getG(n).size()), gen.getH(n).subList(n1, gen.getH(n).size())).compress();
         transcript.append("S2", S2);
 
         Scalar y = transcript.challengeScalar("y");
@@ -215,11 +209,11 @@ public class Prover extends ConstraintSystem {
         VecPoly l_poly = new VecPoly(3, n);
         VecPoly r_poly = new VecPoly(3, n);
 
-        Scalar exp_y = Scalar.ONE;
+        Scalar exp_y = BulletProofs.getFactory().one();
         Scalar y_inv = y.invert();
 
         List<Scalar> exp_y_inv = new ArrayList<>();
-        Scalar eyinv = Scalar.ONE;
+        Scalar eyinv = BulletProofs.getFactory().one();
         for (int i = 0; i < nPadded; i++) {
             exp_y_inv.add(eyinv);
             eyinv = eyinv.multiply(y_inv);
@@ -253,11 +247,11 @@ public class Prover extends ConstraintSystem {
         Scalar t_5_blinding = Utils.randomScalar();
         Scalar t_6_blinding = Utils.randomScalar();
 
-        CompressedRistretto T_1 = pedersenCommitment.commit(t_poly.get(1), t_1_blinding);
-        CompressedRistretto T_3 = pedersenCommitment.commit(t_poly.get(3), t_3_blinding);
-        CompressedRistretto T_4 = pedersenCommitment.commit(t_poly.get(4), t_4_blinding);
-        CompressedRistretto T_5 = pedersenCommitment.commit(t_poly.get(5), t_5_blinding);
-        CompressedRistretto T_6 = pedersenCommitment.commit(t_poly.get(6), t_6_blinding);
+        ECPoint T_1 = pedersenCommitment.commit(t_poly.get(1), t_1_blinding);
+        ECPoint T_3 = pedersenCommitment.commit(t_poly.get(3), t_3_blinding);
+        ECPoint T_4 = pedersenCommitment.commit(t_poly.get(4), t_4_blinding);
+        ECPoint T_5 = pedersenCommitment.commit(t_poly.get(5), t_5_blinding);
+        ECPoint T_6 = pedersenCommitment.commit(t_poly.get(6), t_6_blinding);
 
         transcript.append("T_1", T_1);
         transcript.append("T_3", T_3);
@@ -269,27 +263,27 @@ public class Prover extends ConstraintSystem {
         Scalar x = transcript.challengeScalar("x");
 
         // t_2_blinding = <z*z^Q, W_V * v_blinding>
-        Scalar t_2_blinding = Scalar.ZERO;
+        Scalar t_2_blinding = BulletProofs.getFactory().zero();
         for (int i = 0; i < blindings.size(); i++) {
             t_2_blinding = t_2_blinding.add(wV.get(i).multiply(blindings.get(i)));
         }
 
-        Poly t_blinding_poly = new Poly(Scalar.ZERO, t_1_blinding, t_2_blinding, t_3_blinding, t_4_blinding, t_5_blinding, t_6_blinding);
+        Poly t_blinding_poly = new Poly(BulletProofs.getFactory().zero(), t_1_blinding, t_2_blinding, t_3_blinding, t_4_blinding, t_5_blinding, t_6_blinding);
 
         Scalar t_x = t_poly.at(x);
         Scalar t_x_blinding = t_blinding_poly.at(x);
         List<Scalar> l_vec = l_poly.at(x);
         for (int i = 0; i < pad; i++) {
-            l_vec.add(Scalar.ZERO);
+            l_vec.add(BulletProofs.getFactory().zero());
         }
 
         List<Scalar> r_vec = r_poly.at(x);
         for (int i = 0; i < pad; i++) {
-            r_vec.add(Scalar.ZERO);
+            r_vec.add(BulletProofs.getFactory().zero());
         }
 
         for (int i = n; i < nPadded; i++) {
-            r_vec.set(i, Scalar.ZERO.subtract(exp_y));
+            r_vec.set(i, BulletProofs.getFactory().zero().subtract(exp_y));
             exp_y = exp_y.multiply(y);
         }
 
@@ -304,12 +298,12 @@ public class Prover extends ConstraintSystem {
         transcript.append("e_blinding", e_blinding);
 
         Scalar w = transcript.challengeScalar("w");
-        RistrettoElement Q = pedersenCommitment.getB().multiply(w);
+        ECPoint Q = pedersenCommitment.getB().multiply(w);
 
         List<Scalar> G_factors = new ArrayList<>();
         List<Scalar> H_factors = new ArrayList<>();
         for (int i = 0; i < n1; i++) {
-            G_factors.add(Scalar.ONE);
+            G_factors.add(BulletProofs.getFactory().one());
         }
         for (int i = 0; i < n2 + pad; i++) {
             G_factors.add(u);
@@ -347,7 +341,7 @@ public class Prover extends ConstraintSystem {
     }
 
     public Scalar eval(LinearCombination lc) {
-        Scalar result = Scalar.ZERO;
+        Scalar result = BulletProofs.getFactory().zero();
         for (Term t : lc.getTerms()) {
             if (VariableType.multiplier_left.equals(t.getVariable().getType())) {
                 result = result.add(t.getScalar().multiply(leftGates.get(t.getVariable().getIndex())));
@@ -381,8 +375,8 @@ public class Prover extends ConstraintSystem {
         rightGates.add(sr);
         outputGates.add(so);
 
-        left.append(new Term(vl, Utils.MINUS_ONE));
-        right.append(new Term(vr, Utils.MINUS_ONE));
+        left.append(new Term(vl, BulletProofs.getFactory().minus_one()));
+        right.append(new Term(vr, BulletProofs.getFactory().minus_one()));
 
         constrain(left);
         constrain(right);

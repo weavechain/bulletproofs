@@ -1,6 +1,6 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.Scalar;
 
 public interface Gadget<T extends GadgetParams> {
 

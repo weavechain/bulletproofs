@@ -1,8 +1,7 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.MulUtils;
-import com.weavechain.curve25519.RistrettoElement;
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.ECPoint;
+import com.weavechain.ec.Scalar;
 import com.google.gson.*;
 import org.bitcoinj.base.Base58;
 
@@ -15,8 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Utils {
-
-    public static final Scalar MINUS_ONE = Scalar.ZERO.subtract(Scalar.ONE);
 
     private static final ThreadLocal<SecureRandom> RANDOM = ThreadLocal.withInitial(SecureRandom::new);
 
@@ -48,7 +45,7 @@ public class Utils {
     public static Scalar randomScalar() {
         byte[] r = new byte[32];
         random().nextBytes(r);
-        return Scalar.fromBits(r);
+        return BulletProofs.getFactory().fromBits(r);
     }
 
     public static Scalar scalar(Integer value) {
@@ -60,7 +57,7 @@ public class Utils {
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.putLong(value);
         buffer.flip();
-        return Scalar.fromBits(buffer.array());
+        return BulletProofs.getFactory().fromBits(buffer.array());
     }
 
     public static Long scalarToLong(Scalar value) {
@@ -75,21 +72,21 @@ public class Utils {
         return Utils.scalarFromBigInteger(value);
     }
 
-    public static RistrettoElement multiscalarMul(Scalar s1, List<Scalar> s2, List<Scalar> s3, RistrettoElement p1, List<RistrettoElement> p2, List<RistrettoElement> p3) {
-        return MulUtils.multiscalarMulOpt(s1, s2, s3, p1, p2, p3);
+    public static ECPoint multiscalarMul(Scalar s1, List<Scalar> s2, List<Scalar> s3, ECPoint p1, List<ECPoint> p2, List<ECPoint> p3) {
+        return BulletProofs.getFactory().multiscalarMulOpt(s1, s2, s3, p1, p2, p3);
     }
 
-    public static RistrettoElement multiscalarMul(Scalar s1, List<Scalar> s2, RistrettoElement p1, List<RistrettoElement> p2) {
-        return MulUtils.multiscalarMulOpt(s1, s2, null, p1, p2, null);
+    public static ECPoint multiscalarMul(Scalar s1, List<Scalar> s2, ECPoint p1, List<ECPoint> p2) {
+        return BulletProofs.getFactory().multiscalarMulOpt(s1, s2, null, p1, p2, null);
     }
 
-    public static RistrettoElement multiscalarMul(Scalar s1, Scalar s2, RistrettoElement p1, RistrettoElement p2) {
-        return MulUtils.mulStraus(s1, s2, p1, p2);
+    public static ECPoint multiscalarMul(Scalar s1, Scalar s2, ECPoint p1, ECPoint p2) {
+        return BulletProofs.getFactory().mulOptimized(s1, s2, p1, p2);
     }
 
     public static Scalar innerProduct(List<Scalar> a, List<Scalar> b) {
         if (a.size() == b.size()) {
-            Scalar result = Scalar.ZERO;
+            Scalar result = BulletProofs.getFactory().zero();
             for (int i = 0; i < a.size(); i++) {
                 result = result.add(a.get(i).multiply(b.get(i)));
             }
@@ -110,7 +107,7 @@ public class Utils {
         for (int j = start; j < data.length; j++) {
             dest[j - start] = data[data.length - 1 + start - j];
         }
-        return Scalar.fromBits(dest);
+        return BulletProofs.getFactory().fromBits(dest);
     }
 
     public static BigInteger toBigInteger(Scalar scalar) {
@@ -137,7 +134,7 @@ public class Utils {
         }
 
         public Scalar deserialize(JsonElement json, Type typeOfSrc, JsonDeserializationContext context) {
-            return Scalar.fromBits(Base58.decode(json.getAsString()));
+            return BulletProofs.getFactory().fromBits(Base58.decode(json.getAsString()));
         }
     }
 }

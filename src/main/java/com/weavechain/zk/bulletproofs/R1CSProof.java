@@ -1,7 +1,7 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.CompressedRistretto;
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.ECPoint;
+import com.weavechain.ec.Scalar;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.msgpack.core.MessageBufferPacker;
@@ -14,37 +14,37 @@ import java.io.IOException;
 public class R1CSProof {
 
     // Commitment to the values of input wires in the first phase.
-    private final CompressedRistretto A_I1;
+    private final ECPoint A_I1;
 
     // Commitment to the values of output wires in the first phase.
-    private final CompressedRistretto A_O1;
+    private final ECPoint A_O1;
 
     // Commitment to the blinding factors in the first phase.
-    private final CompressedRistretto S1;
+    private final ECPoint S1;
 
     // Commitment to the values of input wires in the second phase.
-    private final CompressedRistretto A_I2;
+    private final ECPoint A_I2;
 
     // Commitment to the values of output wires in the second phase.
-    private final CompressedRistretto A_O2;
+    private final ECPoint A_O2;
 
     // Commitment to the blinding factors in the second phase.
-    private final CompressedRistretto S2;
+    private final ECPoint S2;
 
     // Commitment to the t_1 coefficient of t(x)
-    private final CompressedRistretto T1;
+    private final ECPoint T1;
 
     // Commitment to the t4 coefficient of t(x)
-    private final CompressedRistretto T3;
+    private final ECPoint T3;
 
     // Commitment to the t_4 coefficient of t(x)
-    private final CompressedRistretto T4;
+    private final ECPoint T4;
 
     // Commitment to the t_5 coefficient of t(x)
-    private final CompressedRistretto T5;
+    private final ECPoint T5;
 
     // Commitment to the t_6 coefficient of t(x)
-    private final CompressedRistretto T6;
+    private final ECPoint T6;
 
     // Evaluation of the polynomial t(x) at the challenge point x
     private final Scalar tx;
@@ -77,20 +77,20 @@ public class R1CSProof {
     }
 
     public static R1CSProof unpack(MessageUnpacker unpacker) throws IOException {
-        CompressedRistretto A_I1 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto A_O1 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto S1 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto A_I2 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto A_O2 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto S2 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto T1 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto T3 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto T4 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto T5 = new CompressedRistretto(unpacker.readPayload(32));
-        CompressedRistretto T6 = new CompressedRistretto(unpacker.readPayload(32));
-        Scalar tx = Scalar.fromBits(unpacker.readPayload(32));
-        Scalar txBlinding = Scalar.fromBits(unpacker.readPayload(32));
-        Scalar eBlinding = Scalar.fromBits(unpacker.readPayload(32));
+        ECPoint A_I1 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint A_O1 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint S1 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint A_I2 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint A_O2 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint S2 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint T1 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint T3 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint T4 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint T5 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        ECPoint T6 = BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32));
+        Scalar tx = BulletProofs.getFactory().fromBits(unpacker.readPayload(32));
+        Scalar txBlinding = BulletProofs.getFactory().fromBits(unpacker.readPayload(32));
+        Scalar eBlinding = BulletProofs.getFactory().fromBits(unpacker.readPayload(32));
 
         InnerProductProof ippProof = InnerProductProof.unpack(unpacker);
 

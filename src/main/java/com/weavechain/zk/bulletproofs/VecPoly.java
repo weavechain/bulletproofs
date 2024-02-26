@@ -1,6 +1,6 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.Scalar;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public class VecPoly {
 
     public VecPoly(int degree, int size) {
         for (int i = 0; i <= degree; i++) {
-            coefficients.add(new ArrayList<>(Collections.nCopies(size, Scalar.ZERO)));
+            coefficients.add(new ArrayList<>(Collections.nCopies(size, BulletProofs.getFactory().zero())));
         }
     }
 
@@ -40,18 +40,18 @@ public class VecPoly {
         Scalar t5 = Utils.innerProduct(this.get(2), other.get(3));
         Scalar t6 = Utils.innerProduct(this.get(3), other.get(3));
 
-        return new Poly(Scalar.ZERO, t1, t2, t3, t4, t5, t6);
+        return new Poly(BulletProofs.getFactory().zero(), t1, t2, t3, t4, t5, t6);
     }
 
     public List<Scalar> at(Scalar x) {
         if (coefficients.size() > 0) {
             int n = coefficients.get(0).size();
-            List<Scalar> res = new ArrayList<>(Collections.nCopies(n, Scalar.ZERO));
+            List<Scalar> res = new ArrayList<>(Collections.nCopies(n, BulletProofs.getFactory().zero()));
 
             for (int i = 0; i < n; i++) {
                 Scalar val = coefficients.get(0).get(i);
 
-                Scalar cp = Scalar.ONE;
+                Scalar cp = BulletProofs.getFactory().one();
                 for (int j = 1; j < coefficients.size(); j++) {
                     cp = cp.multiply(x);
                     val = coefficients.get(j).get(i).multiplyAndAdd(cp, val);

@@ -1,9 +1,7 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.CompressedRistretto;
-import com.weavechain.curve25519.MulUtils;
-import com.weavechain.curve25519.RistrettoElement;
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.ECPoint;
+import com.weavechain.ec.Scalar;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.msgpack.core.MessageBufferPacker;
@@ -17,9 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class InnerProductProof {
 
-    private final List<CompressedRistretto> L;
+    private final List<ECPoint> L;
 
-    private final List<CompressedRistretto> R;
+    private final List<ECPoint> R;
 
     private final Scalar a;
 
@@ -40,20 +38,20 @@ public class InnerProductProof {
     }
 
     public static InnerProductProof unpack(MessageUnpacker unpacker) throws IOException {
-        Scalar a = Scalar.fromBits(unpacker.readPayload(32));
-        Scalar b = Scalar.fromBits(unpacker.readPayload(32));
+        Scalar a = BulletProofs.getFactory().fromBits(unpacker.readPayload(32));
+        Scalar b = BulletProofs.getFactory().fromBits(unpacker.readPayload(32));
 
 
-        List<CompressedRistretto> L = new ArrayList<>();
+        List<ECPoint> L = new ArrayList<>();
         int llen = unpacker.unpackInt();
         for (int i = 0; i < llen; i++) {
-            L.add(new CompressedRistretto(unpacker.readPayload(32)));
+            L.add(BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32)));
         }
 
-        List<CompressedRistretto> R = new ArrayList<>();
+        List<ECPoint> R = new ArrayList<>();
         int rlen = unpacker.unpackInt();
         for (int i = 0; i < rlen; i++) {
-            R.add(new CompressedRistretto(unpacker.readPayload(32)));
+            R.add(BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32)));
         }
 
         return new InnerProductProof(L, R, a, b);
@@ -92,7 +90,7 @@ public class InnerProductProof {
         }
 
         List<Scalar> s = new ArrayList<>();
-        s.add(allInv != null ? allInv : Scalar.ONE);
+        s.add(allInv != null ? allInv : BulletProofs.getFactory().one());
         for (int i = 1; i < n; i++) {
             int logI = (32 - 1 - Integer.numberOfLeadingZeros(i));
             int k = 1 << logI;
@@ -102,7 +100,7 @@ public class InnerProductProof {
         return new IPPVer(challenges, invChallenges, s);
     }
 
-    public static InnerProductProof create(Transcript transcript, RistrettoElement Q, List<Scalar> G_fact, List<Scalar> H_fact, List<RistrettoElement> G, List<RistrettoElement> H, List<Scalar> a, List<Scalar> b) {
+    public static InnerProductProof create(Transcript transcript, ECPoint Q, List<Scalar> G_fact, List<Scalar> H_fact, List<ECPoint> G, List<ECPoint> H, List<Scalar> a, List<Scalar> b) {
         int n = G.size();
         if (n != H.size() || n != a.size() || n != b.size() || n != G_fact.size() || n != H_fact.size()) {
             return null;
@@ -114,8 +112,8 @@ public class InnerProductProof {
         transcript.append("dom-sep", "ipp");
         transcript.append("n", n);
 
-        List<CompressedRistretto> L_vec = new ArrayList<>();
-        List<CompressedRistretto> R_vec = new ArrayList<>();
+        List<ECPoint> L_vec = new ArrayList<>();
+        List<ECPoint> R_vec = new ArrayList<>();
 
         if (n != 1) {
             n = n >> 1;
@@ -124,10 +122,10 @@ public class InnerProductProof {
             List<Scalar> a_R = a.subList(n, a.size());
             List<Scalar> b_L = b.subList(0, n);
             List<Scalar> b_R = b.subList(n, b.size());
-            List<RistrettoElement> G_L = G.subList(0, n);
-            List<RistrettoElement> G_R = G.subList(n, G.size());
-            List<RistrettoElement> H_L = H.subList(0, n);
-            List<RistrettoElement> H_R = H.subList(n, H.size());
+            List<ECPoint> G_L = G.subList(0, n);
+            List<ECPoint> G_R = G.subList(n, G.size());
+            List<ECPoint> H_L = H.subList(0, n);
+            List<ECPoint> H_R = H.subList(n, H.size());
 
             Scalar c_L = Utils.innerProduct(a_L, b_R);
             Scalar c_R = Utils.innerProduct(a_R, b_L);
@@ -143,8 +141,8 @@ public class InnerProductProof {
                 zb_R.add(b_R.get(i).multiply(H_fact.get(i)));
             }
 
-            CompressedRistretto L = Utils.multiscalarMul(c_L, za_L, zb_R, Q, G_R, H_L).compress();
-            CompressedRistretto R = Utils.multiscalarMul(c_R, za_R, zb_L, Q, G_L, H_R).compress();
+            ECPoint L = Utils.multiscalarMul(c_L, za_L, zb_R, Q, G_R, H_L).compress();
+            ECPoint R = Utils.multiscalarMul(c_R, za_R, zb_L, Q, G_L, H_R).compress();
 
             L_vec.add(L);
             R_vec.add(R);
@@ -158,8 +156,8 @@ public class InnerProductProof {
             for (int i = 0; i < n; i++) {
                 a_L.set(i, a_L.get(i).multiply(u).add(u_inv.multiply(a_R.get(i))));
                 b_L.set(i, b_L.get(i).multiply(u_inv).add(u.multiply(b_R.get(i))));
-                G_L.set(i, MulUtils.mulStraus(u_inv.multiply(G_fact.get(i)), u.multiply(G_fact.get(n + i)), G_L.get(i), G_R.get(i)));
-                H_L.set(i, MulUtils.mulStraus(u.multiply(H_fact.get(i)), u_inv.multiply(H_fact.get(n + i)), H_L.get(i), H_R.get(i)));
+                G_L.set(i, BulletProofs.getFactory().mulOptimized(u_inv.multiply(G_fact.get(i)), u.multiply(G_fact.get(n + i)), G_L.get(i), G_R.get(i)));
+                H_L.set(i, BulletProofs.getFactory().mulOptimized(u.multiply(H_fact.get(i)), u_inv.multiply(H_fact.get(n + i)), H_L.get(i), H_R.get(i)));
             }
 
             a = a_L;
@@ -175,16 +173,16 @@ public class InnerProductProof {
             List<Scalar> a_R = a.subList(n, a.size());
             List<Scalar> b_L = b.subList(0, n);
             List<Scalar> b_R = b.subList(n,b.size());
-            List<RistrettoElement> G_L = G.subList(0, n);
-            List<RistrettoElement> G_R = G.subList(n, G.size());
-            List<RistrettoElement> H_L = H.subList(0, n);
-            List<RistrettoElement> H_R = H.subList(n, H.size());
+            List<ECPoint> G_L = G.subList(0, n);
+            List<ECPoint> G_R = G.subList(n, G.size());
+            List<ECPoint> H_L = H.subList(0, n);
+            List<ECPoint> H_R = H.subList(n, H.size());
 
             Scalar c_L = Utils.innerProduct(a_L, b_R);
             Scalar c_R = Utils.innerProduct(a_R, b_L);
 
-            CompressedRistretto L = Utils.multiscalarMul(c_L, a_L, b_R, Q, G_R, H_L).compress();
-            CompressedRistretto R = Utils.multiscalarMul(c_R, a_R, b_L, Q, G_L, H_R).compress();
+            ECPoint L = Utils.multiscalarMul(c_L, a_L, b_R, Q, G_R, H_L).compress();
+            ECPoint R = Utils.multiscalarMul(c_R, a_R, b_L, Q, G_L, H_R).compress();
 
             L_vec.add(L);
             R_vec.add(R);
@@ -198,8 +196,8 @@ public class InnerProductProof {
             for (int i = 0; i < n; i++) {
                 a_L.set(i, a_L.get(i).multiply(u).add(u_inv.multiply(a_R.get(i))));
                 b_L.set(i, b_L.get(i).multiply(u_inv).add(u.multiply(b_R.get(i))));
-                G_L.set(i, MulUtils.mulStraus(u_inv, u, G_L.get(i), G_R.get(i)));
-                H_L.set(i, MulUtils.mulStraus(u, u_inv, H_L.get(i), H_R.get(i)));
+                G_L.set(i, BulletProofs.getFactory().mulOptimized(u_inv, u, G_L.get(i), G_R.get(i)));
+                H_L.set(i, BulletProofs.getFactory().mulOptimized(u, u_inv, H_L.get(i), H_R.get(i)));
             }
 
             a = a_L;

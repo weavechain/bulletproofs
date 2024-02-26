@@ -1,6 +1,6 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.CompressedRistretto;
+import com.weavechain.ec.ECPoint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.msgpack.core.MessageBufferPacker;
@@ -17,9 +17,9 @@ public class Proof {
 
     private final R1CSProof proof;
 
-    private final List<CompressedRistretto> commitments;
+    private final List<ECPoint> commitments;
 
-    public CompressedRistretto getCommitment(int i) {
+    public ECPoint getCommitment(int i) {
         return commitments.get(i);
     }
 
@@ -28,9 +28,9 @@ public class Proof {
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(data);
         int len = unpacker.unpackInt();
 
-        List<CompressedRistretto> commitments = new ArrayList<>();
+        List<ECPoint> commitments = new ArrayList<>();
         for (int i = 0; i < len; i++) {
-            commitments.add(new CompressedRistretto(unpacker.readPayload(32)));
+            commitments.add(BulletProofs.getFactory().fromCompressed(unpacker.readPayload(32)));
         }
         R1CSProof proof = R1CSProof.unpack(unpacker);
         unpacker.close();
@@ -42,7 +42,7 @@ public class Proof {
         MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
         packer.packInt(commitments.size());
 
-        for (CompressedRistretto p : commitments) {
+        for (ECPoint p : commitments) {
             packer.writePayload(p.toByteArray());
         }
         proof.pack(packer);

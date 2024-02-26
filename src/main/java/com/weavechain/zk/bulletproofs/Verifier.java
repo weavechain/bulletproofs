@@ -1,8 +1,7 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.CompressedRistretto;
-import com.weavechain.curve25519.RistrettoElement;
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.ECPoint;
+import com.weavechain.ec.Scalar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,17 +22,15 @@ public class Verifier extends ConstraintSystem {
 
     private final List<Consumer<Verifier>> deferredConstraints = new ArrayList<>();
 
-    private final List<CompressedRistretto> values = new ArrayList<>();
+    private final List<ECPoint> values = new ArrayList<>();
 
     private int numVars = 0;
-
-    private Integer pendingMultiplier = null;
 
     public Verifier(Transcript transcript) {
         this.transcript = transcript;
     }
 
-    public Variable commit(CompressedRistretto commitment) {
+    public Variable commit(ECPoint commitment) {
         int size = values.size();
 
         values.add(commitment);
@@ -59,8 +56,6 @@ public class Verifier extends ConstraintSystem {
     }
 
     private void randomizedConstraints() {
-        pendingMultiplier = null;
-
         if (deferredConstraints.isEmpty()) {
             transcript.phase1();
         } else {
@@ -76,11 +71,11 @@ public class Verifier extends ConstraintSystem {
         int n = numVars;
         int m = values.size();
 
-        List<Scalar> wL = new ArrayList<>(Collections.nCopies(n, Scalar.ZERO));
-        List<Scalar> wR = new ArrayList<>(Collections.nCopies(n, Scalar.ZERO));
-        List<Scalar> wO = new ArrayList<>(Collections.nCopies(n, Scalar.ZERO));
-        List<Scalar> wV = new ArrayList<>(Collections.nCopies(m, Scalar.ZERO));
-        Scalar wc = Scalar.ZERO;
+        List<Scalar> wL = new ArrayList<>(Collections.nCopies(n, BulletProofs.factory.zero()));
+        List<Scalar> wR = new ArrayList<>(Collections.nCopies(n, BulletProofs.factory.zero()));
+        List<Scalar> wO = new ArrayList<>(Collections.nCopies(n, BulletProofs.factory.zero()));
+        List<Scalar> wV = new ArrayList<>(Collections.nCopies(m, BulletProofs.factory.zero()));
+        Scalar wc = BulletProofs.factory.zero();
 
         Scalar expz = z;
         for (LinearCombination lc : constraints) {
@@ -187,7 +182,7 @@ public class Verifier extends ConstraintSystem {
         Scalar y_inv = y.invert();
 
         List<Scalar> exp_y_inv = new ArrayList<>();
-        Scalar eyinv = Scalar.ONE;
+        Scalar eyinv = BulletProofs.factory.one();
         for (int i = 0; i < nPadded; i++) {
             exp_y_inv.add(eyinv);
             eyinv = eyinv.multiply(y_inv);
@@ -198,7 +193,7 @@ public class Verifier extends ConstraintSystem {
             yneg_wR.add(wR.get(i).multiply(exp_y_inv.get(i)));
         }
         for (int i = 0; i < pad; i++) {
-            yneg_wR.add(Scalar.ZERO);
+            yneg_wR.add(BulletProofs.factory.zero());
         }
 
         Scalar delta = Utils.innerProduct(yneg_wR.subList(0, n), wL);
@@ -206,8 +201,8 @@ public class Verifier extends ConstraintSystem {
         List<Scalar> u_for_g = new ArrayList<>();
         List<Scalar> u_for_h = new ArrayList<>();
         for (int i = 0; i < n1; i++) {
-            u_for_g.add(Scalar.ONE);
-            u_for_h.add(Scalar.ONE);
+            u_for_g.add(BulletProofs.factory.one());
+            u_for_h.add(BulletProofs.factory.one());
         }
         for (int i = 0; i < n2 + pad; i++) {
             u_for_g.add(u);
@@ -224,9 +219,9 @@ public class Verifier extends ConstraintSystem {
         List<Scalar> sinv = new ArrayList<>(ippVer.getS());
         Collections.reverse(sinv);
         for (int i = 0; i < exp_y_inv.size(); i++) {
-            Scalar wl = i < wL.size() ? wL.get(i) : Scalar.ZERO;
-            Scalar wo = i < wO.size() ? wO.get(i) : Scalar.ZERO;
-            h_scalars.add(u_for_h.get(i).multiply(exp_y_inv.get(i).multiply(x.multiply(wl).add(wo).subtract(b.multiply(sinv.get(i)))).subtract(Scalar.ONE)));
+            Scalar wl = i < wL.size() ? wL.get(i) : BulletProofs.getFactory().zero();
+            Scalar wo = i < wO.size() ? wO.get(i) : BulletProofs.getFactory().zero();
+            h_scalars.add(u_for_h.get(i).multiply(exp_y_inv.get(i).multiply(x.multiply(wl).add(wo).subtract(b.multiply(sinv.get(i)))).subtract(BulletProofs.getFactory().one())));
         }
 
         transcript.rnd();
@@ -238,7 +233,7 @@ public class Verifier extends ConstraintSystem {
         Scalar xxx = x.multiply(xx);
 
         List<Scalar> T_scalars = Arrays.asList(r.multiply(x), rxx.multiply(x), rxx.multiply(xx), rxx.multiply(xxx), rxx.multiply(xx).multiply(xx));
-        List<CompressedRistretto> T_points = Arrays.asList(proof.getProof().getT1(), proof.getProof().getT3(), proof.getProof().getT4(), proof.getProof().getT5(), proof.getProof().getT6());
+        List<ECPoint> T_points = Arrays.asList(proof.getProof().getT1(), proof.getProof().getT3(), proof.getProof().getT4(), proof.getProof().getT5(), proof.getProof().getT6());
 
         try {
             List<Scalar> scalars = new ArrayList<>();
@@ -252,38 +247,38 @@ public class Verifier extends ConstraintSystem {
             }
             scalars.addAll(T_scalars);
             scalars.add(w.multiply(proof.getProof().getTx().subtract(a.multiply(b))).add(r.multiply(xx.multiply(wp.getC().add(delta)).subtract(proof.getProof().getTx()))));
-            scalars.add(Scalar.ZERO.subtract(proof.getProof().getEBlinding()).subtract(r.multiply(proof.getProof().getTxBlinding())));
+            scalars.add(BulletProofs.getFactory().zero().subtract(proof.getProof().getEBlinding()).subtract(r.multiply(proof.getProof().getTxBlinding())));
             scalars.addAll(g_scalars);
             scalars.addAll(h_scalars);
             scalars.addAll(ippVer.getU_sq());
             scalars.addAll(ippVer.getU_inv_sq());
 
-            List<RistrettoElement> points = new ArrayList<>();
+            List<ECPoint> points = new ArrayList<>();
             points.add(proof.getProof().getA_O1().decompress());
             points.add(proof.getProof().getS1().decompress());
             points.add(proof.getProof().getA_I2().decompress());
             points.add(proof.getProof().getA_O2().decompress());
             points.add(proof.getProof().getS2().decompress());
-            for (CompressedRistretto p : values) {
+            for (ECPoint p : values) {
                 points.add(p.decompress());
             }
-            for (CompressedRistretto p : T_points) {
+            for (ECPoint p : T_points) {
                 points.add(p.decompress());
             }
             points.add(pedersenCommitment.getB());
             points.add(pedersenCommitment.getBlinding());
             points.addAll(gens.getG(nPadded));
             points.addAll(gens.getH(nPadded));
-            for (CompressedRistretto p : proof.getProof().getIppProof().getL()) {
+            for (ECPoint p : proof.getProof().getIppProof().getL()) {
                 points.add(p.decompress());
             }
-            for (CompressedRistretto p : proof.getProof().getIppProof().getR()) {
+            for (ECPoint p : proof.getProof().getIppProof().getR()) {
                 points.add(p.decompress());
             }
 
-            RistrettoElement check = Utils.multiscalarMul(x, scalars, proof.getProof().getA_I1().decompress(), points);
+            ECPoint check = Utils.multiscalarMul(x, scalars, proof.getProof().getA_I1().decompress(), points);
 
-            return RistrettoElement.IDENTITY.equals(check);
+            return BulletProofs.getFactory().identity().equals(check);
         } catch (Exception e) {
             logger.error("Failed check", e);
             return false;
@@ -298,8 +293,8 @@ public class Verifier extends ConstraintSystem {
 
         numVars++;
 
-        left.append(new Term(l, Utils.MINUS_ONE));
-        right.append(new Term(r, Utils.MINUS_ONE));
+        left.append(new Term(l, BulletProofs.getFactory().minus_one()));
+        right.append(new Term(r, BulletProofs.getFactory().minus_one()));
 
         constrain(left);
         constrain(right);

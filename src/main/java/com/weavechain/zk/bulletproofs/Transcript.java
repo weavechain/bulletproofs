@@ -1,9 +1,9 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.CompressedRistretto;
-import com.weavechain.curve25519.InvalidEncodingException;
-import com.weavechain.curve25519.RistrettoElement;
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.ECPoint;
+import com.weavechain.ec.Scalar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -12,6 +12,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Transcript {
+
+    static final Logger logger = LoggerFactory.getLogger(Transcript.class);
 
     private ByteArrayOutputStream transcript = new ByteArrayOutputStream();
 
@@ -36,7 +38,7 @@ public class Transcript {
         transcript.writeBytes(value.toByteArray());
     }
 
-    public void append(String key, CompressedRistretto value) {
+    public void append(String key, ECPoint value) {
         transcript.write('P');
         writeString(key);
         transcript.writeBytes(value.toByteArray());
@@ -52,15 +54,16 @@ public class Transcript {
         writeString("r1cs-2phase");
     }
 
-    public boolean validateAndAppend(String key, CompressedRistretto value) {
+    public boolean validateAndAppend(String key, ECPoint value) {
         try {
-            if (RistrettoElement.IDENTITY.equals(value.decompress())) {
+            if (BulletProofs.getFactory().identity().equals(value.decompress())) {
                 return false;
             } else {
                 append(key, value);
                 return true;
             }
-        } catch (InvalidEncodingException e) {
+        } catch (Exception e) {
+            logger.error("Failed validation", e);
             return false;
         }
     }
@@ -83,7 +86,7 @@ public class Transcript {
             md.update(transcript.toByteArray());
             byte[] digest = md.digest();
 
-            return Scalar.fromBytesModOrderWide(digest);
+            return BulletProofs.getFactory().fromBytesModOrderWide(digest);
         } catch (NoSuchAlgorithmException e) {
             return null;
         }

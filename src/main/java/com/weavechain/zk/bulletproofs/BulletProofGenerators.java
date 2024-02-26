@@ -1,7 +1,7 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.RistrettoElement;
 import com.github.aelstad.keccakj.fips202.Shake256;
+import com.weavechain.ec.ECPoint;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -13,13 +13,13 @@ import java.util.List;
 @Getter
 public class BulletProofGenerators {
 
-    private int capacity; //TODO: compute generators size automatically?
+    private final int capacity; //TODO: compute generators size automatically?
 
-    private int parties;
+    private final int parties;
 
-    private final List<List<RistrettoElement>> g = new ArrayList<>();
+    private final List<List<ECPoint>> g = new ArrayList<>();
 
-    private final List<List<RistrettoElement>> h = new ArrayList<>();
+    private final List<List<ECPoint>> h = new ArrayList<>();
 
     public BulletProofGenerators(int capacity, int parties) throws IOException {
         this.capacity = capacity;
@@ -50,11 +50,11 @@ public class BulletProofGenerators {
             hDigest.getSqueezeStream().read(hpoints);
             hDigest.reset();
 
-            List<RistrettoElement> ge = new ArrayList<>();
-            List<RistrettoElement> he = new ArrayList<>();
+            List<ECPoint> ge = new ArrayList<>();
+            List<ECPoint> he = new ArrayList<>();
             for (int j = 0; j < capacity; j++) {
-                ge.add(RistrettoElement.fromUniformBytes(Arrays.copyOfRange(gpoints, i * 32, 32)));
-                he.add(RistrettoElement.fromUniformBytes(Arrays.copyOfRange(hpoints, i * 32, 32)));
+                ge.add(BulletProofs.getFactory().fromUniformBytes(Arrays.copyOfRange(gpoints, j * 32, j * 32 + 32)));
+                he.add(BulletProofs.getFactory().fromUniformBytes(Arrays.copyOfRange(hpoints, j * 32, j * 32 + 32)));
             }
 
             g.add(ge);

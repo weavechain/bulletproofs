@@ -1,6 +1,6 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.Scalar;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,12 +13,10 @@ import java.util.List;
 @AllArgsConstructor
 public class LinearCombination {
 
-    public static final LinearCombination ONE = LinearCombination.from(Scalar.ONE);
-
     private final List<Term> terms = new ArrayList<>();
 
     public static LinearCombination from(Variable v) {
-        return LinearCombination.from(new Term(v, Scalar.ONE));
+        return LinearCombination.from(new Term(v, BulletProofs.getFactory().one()));
     }
 
     public static LinearCombination from(BigInteger v) {
@@ -62,7 +60,7 @@ public class LinearCombination {
 
     public LinearCombination sub(LinearCombination other) {
         for (Term t : other.getTerms()) {
-            terms.add(new Term(t.getVariable(), Scalar.ZERO.subtract(t.getScalar())));
+            terms.add(new Term(t.getVariable(), BulletProofs.getFactory().zero().subtract(t.getScalar())));
         }
         return this;
     }

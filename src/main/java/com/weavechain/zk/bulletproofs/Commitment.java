@@ -1,6 +1,6 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.CompressedRistretto;
+import com.weavechain.ec.ECPoint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class Commitment {
 
-    private final CompressedRistretto commitment;
+    private final ECPoint commitment;
 
     private final Variable variable;
 }

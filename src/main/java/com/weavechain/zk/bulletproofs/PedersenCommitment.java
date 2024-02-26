@@ -1,8 +1,7 @@
 package com.weavechain.zk.bulletproofs;
 
-import com.weavechain.curve25519.CompressedRistretto;
-import com.weavechain.curve25519.RistrettoElement;
-import com.weavechain.curve25519.Scalar;
+import com.weavechain.ec.ECPoint;
+import com.weavechain.ec.Scalar;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bitcoinj.base.Base58;
@@ -14,9 +13,9 @@ import java.security.NoSuchAlgorithmException;
 @AllArgsConstructor
 public class PedersenCommitment {
 
-    private final RistrettoElement b;
+    private final ECPoint b;
 
-    private final RistrettoElement blinding;
+    private final ECPoint blinding;
 
     public static PedersenCommitment from(String encoding) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA3-512");
@@ -24,19 +23,19 @@ public class PedersenCommitment {
         byte[] digest = md.digest();
 
         return new PedersenCommitment(
-                RistrettoElement.BASEPOINT,
-                RistrettoElement.fromUniformBytes(digest)
+                BulletProofs.getFactory().basepoint(),
+                BulletProofs.getFactory().fromUniformBytes(digest)
         );
     }
 
     public static PedersenCommitment getDefault() throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA3-512");
-        md.update(RistrettoElement.BASEPOINT.compress().toByteArray());
+        md.update(BulletProofs.getFactory().basepoint().compress().toByteArray());
         byte[] digest = md.digest();
 
         return new PedersenCommitment(
-                RistrettoElement.BASEPOINT,
-                RistrettoElement.fromUniformBytes(digest)
+                BulletProofs.getFactory().basepoint(),
+                BulletProofs.getFactory().fromUniformBytes(digest)
         );
     }
 
@@ -44,17 +43,17 @@ public class PedersenCommitment {
         MessageDigest md = MessageDigest.getInstance("SHA3-512");
         byte[] rndp = new byte[32];
         Utils.random().nextBytes(rndp);
-        RistrettoElement committment = RistrettoElement.fromUniformBytes(rndp);
+        ECPoint committment = BulletProofs.getFactory().fromUniformBytes(rndp);
         md.update(committment.compress().toByteArray());
         byte[] digest = md.digest();
 
         return new PedersenCommitment(
                 committment,
-                RistrettoElement.fromUniformBytes(digest)
+                BulletProofs.getFactory().fromUniformBytes(digest)
         );
     }
 
-    public CompressedRistretto commit(Scalar value, Scalar blinding) {
+    public ECPoint commit(Scalar value, Scalar blinding) {
         return b.multiply(value).add(this.blinding.multiply(blinding)).compress();
     }
 }
