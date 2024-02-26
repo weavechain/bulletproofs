@@ -6,6 +6,7 @@ import com.weavechain.curve25519.Scalar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,7 +39,7 @@ public class Verifier extends ConstraintSystem {
         values.add(commitment);
         transcript.append("V", commitment);
 
-        return new Variable(VariableType.committed, size);
+        return new Variable(VariableType.committed, BigInteger.valueOf(size));
     }
 
     @Override

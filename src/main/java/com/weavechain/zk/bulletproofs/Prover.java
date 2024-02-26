@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +52,7 @@ public class Prover extends ConstraintSystem {
         CompressedRistretto commitment = pedersenCommitment.commit(value, blinding);
         transcript.append("V", commitment);
 
-        return new Commitment(commitment, new Variable(VariableType.committed, size));
+        return new Commitment(commitment, new Variable(VariableType.committed, BigInteger.valueOf(size)));
     }
 
     @Override
